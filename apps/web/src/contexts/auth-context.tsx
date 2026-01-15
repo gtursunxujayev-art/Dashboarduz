@@ -45,6 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: data.data.email || undefined,
           phone: data.data.phone || undefined,
         });
+      } else {
+        // No user data, clear auth
+        logout();
       }
     } catch (error) {
       console.error('Failed to refresh user:', error);
