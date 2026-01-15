@@ -2,7 +2,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { log, LogLevel, logWithContext, setSentryUserContext, clearSentryUserContext } from '../services/observability';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 export interface RequestContext {
   requestId: string;
@@ -22,7 +22,7 @@ declare global {
 
 // Generate request ID middleware
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction) {
-  const requestId = req.headers['x-request-id'] as string || uuidv4();
+  const requestId = req.headers['x-request-id'] as string || randomUUID();
   
   req.context = {
     requestId,
