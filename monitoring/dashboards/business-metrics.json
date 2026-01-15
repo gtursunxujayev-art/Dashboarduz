@@ -1,0 +1,112 @@
+{
+  "dashboard": {
+    "title": "Dashboarduz - Business Metrics",
+    "tags": ["dashboarduz", "business", "metrics"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Tenants",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(tenants_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+      },
+      {
+        "id": 2,
+        "title": "Active Users (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(users_active_24h)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 }
+      },
+      {
+        "id": 3,
+        "title": "Total Leads",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(leads_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 }
+      },
+      {
+        "id": 4,
+        "title": "Total Calls",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(calls_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 }
+      },
+      {
+        "id": 5,
+        "title": "Leads Created Over Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(leads_created_total[5m])",
+            "legendFormat": "Leads/min",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
+      },
+      {
+        "id": 6,
+        "title": "Integration Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "integrations_status{status=\"active\"}",
+            "format": "table",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 }
+      },
+      {
+        "id": 7,
+        "title": "Notification Delivery Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(notifications_sent_total[5m])",
+            "legendFormat": "{{type}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 }
+      },
+      {
+        "id": 8,
+        "title": "Webhook Processing Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(webhooks_processed_total[5m])",
+            "legendFormat": "{{source}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 }
+      }
+    ]
+  }
+}
