@@ -10,6 +10,16 @@ import { applyObservabilityMiddleware } from './middleware/observability';
 
 dotenv.config();
 
+// Validate environment variables
+try {
+  const { validateAllFeatures } = require('./config/env-validator');
+  validateAllFeatures();
+  console.log('[Config] Environment variables validated successfully');
+} catch (error: any) {
+  console.error('[Config] Environment validation failed:', error.message);
+  process.exit(1);
+}
+
 // Initialize observability
 initSentry();
 
@@ -70,6 +80,13 @@ app.get('/health/queues', async (req, res) => {
 
 // Webhook endpoints (public, signature-verified)
 app.use('/webhooks', webhookRouter);
+
+// Integration OAuth routes
+import googleAuthRouter from './routes/auth/google';
+import amocrmRouter from './routes/integrations/amocrm';
+
+app.use('/api/auth/google', googleAuthRouter);
+app.use('/api/integrations/amocrm', amocrmRouter);
 
 // tRPC endpoint
 app.use('/api/trpc', trpcMiddleware);
