@@ -1,0 +1,157 @@
+# Prometheus Alert Rules for Dashboarduz
+
+groups:
+  - name: dashboarduz_alerts
+    interval: 30s
+    rules:
+      # API Service Alerts
+      - alert: APIServiceDown
+        expr: up{job="dashboarduz-api"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API service is down"
+          description: "API service has been down for more than 5 minutes"
+
+      - alert: APIServiceHighCPU
+        expr: avg(ecs_service_cpu_utilization{service_name="dashboarduz-api"}) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API service CPU usage is high"
+          description: "API service CPU usage is above 80% for 10 minutes"
+
+      - alert: APIServiceHighMemory
+        expr: avg(ecs_service_memory_utilization{service_name="dashboarduz-api"}) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API service memory usage is high"
+          description: "API service memory usage is above 85% for 10 minutes"
+
+      # Database Alerts
+      - alert: DatabaseConnectionHigh
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection count is high"
+          description: "Database has more than 80 active connections"
+
+      - alert: DatabaseSlowQueries
+        expr: rate(pg_stat_statements_mean_exec_time[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database slow queries detected"
+          description: "Average query execution time is above 1 second"
+
+      # Redis Alerts
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is above 90%"
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis service is not responding"
+
+      # Queue Alerts
+      - alert: QueueBacklogHigh
+        expr: queue_jobs_total{status="waiting"} > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue backlog is high"
+          description: "More than 1000 jobs waiting in queue"
+
+      - alert: QueueFailureRateHigh
+        expr: rate(queue_jobs_total{status="failed"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue failure rate is high"
+          description: "More than 10 jobs failing per minute"
+
+      # HTTP Alerts
+      - alert: HighErrorRate
+        expr: rate(http_errors_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP error rate"
+          description: "Error rate is above 50 errors per minute"
+      
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is above 2 seconds"
+      
+      - alert: LowRequestRate
+        expr: rate(http_requests_total[5m]) < 1
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low request rate"
+          description: "Request rate is below 1 request per minute for 15 minutes"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m])) > 5000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time"
+          description: "95th percentile response time is above 5 seconds"
+
+      # Integration Alerts
+      - alert: IntegrationSyncFailed
+        expr: integrations_sync_failed_total > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Integration sync failed"
+          description: "One or more integrations failed to sync"
+
+      # Webhook Alerts
+      - alert: WebhookProcessingFailed
+        expr: rate(webhooks_processed_total{status="failed"}[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Webhook processing failures"
+          description: "More than 5 webhooks failing per minute"
+
+      # Notification Alerts
+      - alert: NotificationDeliveryFailed
+        expr: rate(notifications_sent_total{status="failed"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Notification delivery failures"
+          description: "More than 10 notifications failing per minute"
