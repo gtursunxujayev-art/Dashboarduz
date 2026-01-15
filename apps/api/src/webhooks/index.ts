@@ -24,8 +24,10 @@ router.post('/amocrm', async (req: Request, res: Response) => {
       },
     });
 
-    // TODO: Push to Redis queue for processing
-    console.log(`Webhook event created: ${event.id}`);
+    // Push to Redis queue for processing
+    const { queueService } = await import('../services/queue');
+    await queueService.addWebhookJob(event.id, event.tenantId || undefined);
+    console.log(`Webhook event created and queued: ${event.id}`);
 
   } catch (error) {
     console.error('Webhook processing error:', error);
@@ -48,8 +50,10 @@ router.post('/utel', async (req: Request, res: Response) => {
       },
     });
 
-    // TODO: Process call event and link to lead
-    console.log(`UTeL webhook event created: ${event.id}`);
+    // Push to queue for processing
+    const { queueService } = await import('../services/queue');
+    await queueService.addWebhookJob(event.id, event.tenantId || undefined);
+    console.log(`UTeL webhook event created and queued: ${event.id}`);
 
   } catch (error) {
     console.error('UTeL webhook error:', error);
@@ -71,7 +75,10 @@ router.post('/telegram', async (req: Request, res: Response) => {
       },
     });
 
-    console.log(`Telegram webhook event created: ${event.id}`);
+    // Push to queue for processing
+    const { queueService } = await import('../services/queue');
+    await queueService.addWebhookJob(event.id, event.tenantId || undefined);
+    console.log(`Telegram webhook event created and queued: ${event.id}`);
 
   } catch (error) {
     console.error('Telegram webhook error:', error);
