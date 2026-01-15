@@ -151,6 +151,8 @@ model Contact {
   leads  Lead[]
 
   @@index([tenantId])
+  @@index([tenantId, phone])
+  @@index([tenantId, email])
   @@index([phone])
   @@index([email])
   @@map("contacts")
