@@ -15,11 +15,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
     },
   }));
 
+  const [trpcClientState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const { createTRPCClient } = require('@/lib/trpc');
+      return createTRPCClient();
+    }
+    return null;
+  });
+
+  if (!trpcClientState) {
+    return <>{children}</>;
+  }
+
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <trpc.Provider client={trpcClientState} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <ReactQueryDevtools initialIsOpen={false} />
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </trpc.Provider>
   );
