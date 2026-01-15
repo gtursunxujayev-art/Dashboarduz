@@ -1,0 +1,140 @@
+name: Database Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to migrate'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      create_backup:
+        description: 'Create backup before migration'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  backup:
+    if: github.event.inputs.create_backup == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8.15.0'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Create database backup
+        run: |
+          cd packages/db
+          pnpm backup:s3
+        env:
+          DATABASE_URL: ${{ secrets[format('DATABASE_URL_{0}', github.event.inputs.environment)] }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BACKUP_BUCKET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+  migrate:
+    runs-on: ubuntu-latest
+    needs: backup
+    if: always()
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8.15.0'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: ${{ secrets[format('DATABASE_URL_{0}', github.event.inputs.environment)] }}
+      
+      - name: Check migration status
+        run: |
+          cd packages/db
+          pnpm migrate:status
+        env:
+          DATABASE_URL: ${{ secrets[format('DATABASE_URL_{0}', github.event.inputs.environment)] }}
+        continue-on-error: true
+      
+      - name: Run database migrations
+        run: |
+          cd packages/db
+          pnpm migrate:deploy
+        env:
+          DATABASE_URL: ${{ secrets[format('DATABASE_URL_{0}', github.event.inputs.environment)] }}
+      
+      - name: Verify migration
+        run: |
+          cd packages/db
+          pnpm migrate:status
+        env:
+          DATABASE_URL: ${{ secrets[format('DATABASE_URL_{0}', github.event.inputs.environment)] }}
+      
+      - name: Notify migration success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "✅ Database migration successful",
+              attachments: [{
+                color: 'good',
+                text: `Migrations applied to ${{ github.event.inputs.environment }}`
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: Notify migration failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "❌ Database migration failed",
+              attachments: [{
+                color: 'danger',
+                text: `Migration failed for ${{ github.event.inputs.environment }}. Check logs and consider restoring from backup.`
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
