@@ -1,0 +1,98 @@
+# ============================================
+# PRODUCTION DOCKERFILE
+# Multi-stage build for optimized production image
+# Security best practices: non-root user, minimal base, no secrets
+# ============================================
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+# Security: Update packages and install only necessary dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache libc6-compat && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Install pnpm with specific version for reproducibility
+RUN npm install -g pnpm@8.15.0
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/db/package.json ./packages/db/
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/api/package.json ./apps/api/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile --prod=false
+
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@8
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages ./packages
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN pnpm --filter db generate
+
+# Build API
+RUN pnpm --filter api build
+
+# Stage 3: Production runtime
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+# Security: Set environment variables
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--disable-proto=delete"
+
+# Security: Create non-root user with specific UID/GID
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --ingroup nodejs --no-create-home nodejs && \
+    # Remove unnecessary packages and clean cache
+    apk del --purge && \
+    rm -rf /var/cache/apk/* /tmp/*
+
+# Copy built application
+COPY --from=builder --chown=nodejs:nodejs /app/apps/api/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/apps/api/package.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/packages ./packages
+
+# Copy Prisma schema and generated client
+COPY --from=builder --chown=nodejs:nodejs /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder --chown=nodejs:nodejs /app/packages/db/node_modules/.prisma ./packages/db/node_modules/.prisma
+
+# Security: Set proper permissions and create necessary directories
+RUN chown -R nodejs:nodejs /app && \
+    chmod -R 755 /app && \
+    mkdir -p /app/tmp && \
+    chown nodejs:nodejs /app/tmp
+
+# Security: Switch to non-root user
+USER nodejs
+
+# Security: Add security labels for container scanning
+LABEL maintainer="Dashboarduz Team" \
+      org.opencontainers.image.title="Dashboarduz API" \
+      org.opencontainers.image.description="Multi-Tenant CRM Integrator API" \
+      org.opencontainers.image.vendor="Dashboarduz" \
+      security.scanning.enabled="true" \
+      security.non-root="true"
+
+# Health check with proper error handling
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
+
+# Security: Expose only necessary port
+EXPOSE 3001
+
+# Security: Use exec form to ensure proper signal handling
+CMD ["node", "dist/index.js"]
