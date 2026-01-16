@@ -1,12 +1,19 @@
 {
-  "buildCommand": "cd ../.. && pnpm build --filter web",
-  "devCommand": "pnpm dev",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm build --filter web",
+  "devCommand": "cd ../.. && pnpm dev --filter web",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "regions": ["iad1"],
+  "outputDirectory": ".next",
   "env": {
     "NEXT_PUBLIC_API_URL": "@next_public_api_url",
     "NEXT_PUBLIC_SENTRY_DSN": "@next_public_sentry_dsn"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production",
+      "SKIP_ENV_VALIDATION": "true"
+    }
   },
   "headers": [
     {
