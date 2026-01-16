@@ -37,6 +37,13 @@ jobs:
       
       - name: Type check
         run: pnpm type-check
+      
+      - name: Run frontend unit tests
+        run: pnpm --filter web test
+        env:
+          NODE_ENV: test
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+        continue-on-error: true
 
   test:
     runs-on: ubuntu-latest
