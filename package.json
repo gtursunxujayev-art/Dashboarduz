@@ -13,6 +13,11 @@
     "db:studio": "pnpm --filter db studio",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
+    "test": "pnpm --filter web test",
+    "test:watch": "pnpm --filter web test:watch",
+    "test:coverage": "pnpm --filter web test:coverage",
+    "e2e": "pnpm --filter web e2e",
+    "e2e:open": "pnpm --filter web cypress:open",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },
