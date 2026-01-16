@@ -42,10 +42,31 @@ jobs:
       - name: Type check
         run: pnpm --filter web type-check
       
+      - name: Run unit tests
+        run: pnpm --filter web test
+        env:
+          NODE_ENV: test
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+      
+      - name: Generate test coverage
+        run: pnpm --filter web test:coverage
+        env:
+          NODE_ENV: test
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+        continue-on-error: true
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./apps/web/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+        continue-on-error: true
+      
       - name: Build
         run: pnpm --filter web build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:3001' }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
