@@ -43,6 +43,6 @@ COPY --from=builder /app/apps/api/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
 
-EXPOSE 3001
-
+EXPOSE 3001 
+# Copy built application
 CMD ["node", "dist/index.js"]
