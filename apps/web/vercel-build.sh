@@ -8,10 +8,31 @@ echo "🚀 Starting Vercel build for Dashboarduz frontend..."
 
 # Navigate to project root
 cd "$(dirname "$0")/../.."
+echo "📁 Current directory: $(pwd)"
+
+# Verify package.json exists
+if [ ! -f "package.json" ]; then
+  echo "❌ Error: package.json not found in root directory"
+  exit 1
+fi
 
 # Install dependencies
 echo "📦 Installing dependencies..."
 pnpm install --frozen-lockfile
+
+# Verify Next.js is installed in web app
+echo "🔍 Checking Next.js installation..."
+if [ ! -f "apps/web/package.json" ]; then
+  echo "❌ Error: apps/web/package.json not found"
+  exit 1
+fi
+
+if ! grep -q '"next"' "apps/web/package.json"; then
+  echo "❌ Error: Next.js not found in apps/web/package.json dependencies"
+  exit 1
+fi
+
+echo "✅ Next.js found in dependencies"
 
 # Generate Prisma client if needed (for shared types)
 if [ -d "packages/db" ]; then
@@ -28,6 +49,14 @@ fi
 # Build the web app
 echo "🏗️  Building Next.js application..."
 cd apps/web
+echo "📁 Building in directory: $(pwd)"
+
+# Verify we're in the right directory
+if [ ! -f "package.json" ]; then
+  echo "❌ Error: Not in web app directory"
+  exit 1
+fi
+
 pnpm build
 
 echo "✅ Build completed successfully!"
