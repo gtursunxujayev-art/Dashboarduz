@@ -1,4 +1,4 @@
-# Dashboarduz - Multi-Tenant CRM Integrator
+# Dashboarduz - Multi-Tenant CRM Integrato
 
 A secure, scalable multi-tenant SaaS platform that integrates AmoCRM, Telegram, Google Sheets, and VoIP (UTeL) into a unified dashboard. Built with TypeScript, Next.js, Node.js, and PostgreSQL.
 
