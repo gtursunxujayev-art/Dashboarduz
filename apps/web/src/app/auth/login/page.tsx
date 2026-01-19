@@ -71,6 +71,9 @@ export default function LoginPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Multi-tenant CRM integrator platform
           </p>
+          <p className="mt-1 text-center text-xs text-blue-500 font-medium">
+            🚀 Deployment Test: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+          </p>
         </div>
 
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
