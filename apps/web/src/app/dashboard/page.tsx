@@ -35,6 +35,9 @@ export default function DashboardPage() {
               <p className="mt-1 text-sm text-gray-500">
                 Here's what's happening with your CRM integrations today.
               </p>
+              <p className="mt-1 text-xs text-blue-500 font-medium">
+                🚀 Deployment Test: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+              </p>
             </div>
           </div>
         </div>
