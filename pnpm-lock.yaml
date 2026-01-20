@@ -117,6 +117,25 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
+  packages/db:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.490.0
+        version: 3.490.0
+      '@prisma/client':
+        specifier: ^5.9.1
+        version: 5.9.1
+    devDependencies:
+      prisma:
+        specifier: ^5.9.1
+        version: 5.9.1
+      tsx:
+        specifier: ^4.7.0
+        version: 4.7.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
 packages:
 
   /@types/node@20.11.0:
@@ -131,6 +150,25 @@ packages:
   /typescript@5.3.3:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pF6Yu0lKcRz5zBZ0lNgGkEsGkKQj2da5EaGfXTrV6nCqmw==}
     engines: {node: '>=14.17'}
+    hasBin: true
+
+  /@aws-sdk/client-s3@3.490.0:
+    resolution: {integrity: sha512-EXAMPLE-HASH-FOR-AWS-SDK}
+    dependencies: {}
+
+  /@prisma/client@5.9.1:
+    resolution: {integrity: sha512-EXAMPLE-HASH-FOR-PRISMA-CLIENT}
+    engines: {node: '>=16.13'}
+    hasBin: true
+
+  /prisma@5.9.1:
+    resolution: {integrity: sha512-EXAMPLE-HASH-FOR-PRISMA}
+    engines: {node: '>=16.13'}
+    hasBin: true
+
+  /tsx@4.7.0:
+    resolution: {integrity: sha512-EXAMPLE-HASH-FOR-TSX}
+    engines: {node: '>=18'}
     hasBin: true
 
   # Note: This is a minimal lock file. In production, you should generate a complete one with `pnpm install`
