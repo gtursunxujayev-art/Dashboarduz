@@ -1,5 +1,5 @@
 {
-  "buildCommand": "./vercel-build.sh",
+  "buildCommand": "cd apps/web && npm run build",
   "devCommand": "cd apps/web && npm run dev",
   "installCommand": "cd apps/web && npm install --legacy-peer-deps",
   "framework": "nextjs",
