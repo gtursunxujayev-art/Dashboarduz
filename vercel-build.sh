@@ -6,7 +6,7 @@ echo "🚀 Starting Vercel build..."
 # Vercel runs this from the project root
 # Install dependencies using pnpm (handles workspace)
 echo "📦 Installing dependencies with pnpm..."
-pnpm install --frozen-lockfile
+pnpm install
 
 # Build the web app
 echo "🏗️  Building Next.js application..."
