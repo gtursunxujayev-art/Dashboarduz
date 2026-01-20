@@ -1,7 +1,7 @@
 {
   "buildCommand": "./vercel-build.sh",
   "devCommand": "cd apps/web && npm run dev",
-  "installCommand": "pnpm install --no-frozen-lockfile",
+  "installCommand": "pnpm install --filter @dashboarduz/web --no-frozen-lockfile",
   "framework": "nextjs",
   "regions": ["iad1"],
   "outputDirectory": "apps/web/.next",
