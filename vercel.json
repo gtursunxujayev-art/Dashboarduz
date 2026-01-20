@@ -1,7 +1,7 @@
 {
   "buildCommand": "./vercel-build.sh",
   "devCommand": "cd apps/web && npm run dev",
-  "installCommand": "cd apps/web && npm install",
+  "installCommand": "cd apps/web && npm install --legacy-peer-deps",
   "framework": "nextjs",
   "regions": ["iad1"],
   "outputDirectory": "apps/web/.next",
