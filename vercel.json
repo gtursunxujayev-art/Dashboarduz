@@ -6,8 +6,8 @@
   "regions": ["iad1"],
   "outputDirectory": "apps/web/.next",
   "env": {
-    "NEXT_PUBLIC_API_URL": "@next_public_api_url",
-    "NEXT_PUBLIC_SENTRY_DSN": "@next_public_sentry_dsn"
+    "NEXT_PUBLIC_API_URL": "",
+    "NEXT_PUBLIC_SENTRY_DSN": ""
   },
   "build": {
     "env": {
