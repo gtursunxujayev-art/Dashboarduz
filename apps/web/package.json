@@ -19,7 +19,7 @@
     "e2e": "cypress run"
   },
   "dependencies": {
-    "@dashboarduz/shared": "workspace:*",
+    "@dashboarduz/shared": "file:../../packages/shared",
     "@tanstack/react-query": "^5.17.0",
     "@tanstack/react-query-devtools": "^5.17.0",
     "@trpc/client": "^10.45.0",
