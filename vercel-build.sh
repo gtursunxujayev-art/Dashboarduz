@@ -3,22 +3,18 @@ set -e
 
 echo "🚀 Starting Vercel build..."
 
-# Check if lock file exists
-if [ -f "pnpm-lock.yaml" ]; then
-  echo "📦 Found existing pnpm-lock.yaml"
-else
-  echo "📦 No pnpm-lock.yaml found - pnpm will generate one"
-fi
+# First, install dependencies for shared package so it can be linked
+echo "📦 Setting up shared package..."
+cd packages/shared
+npm install
 
-# Vercel runs this from the project root
-# Install dependencies ONLY for the web app to avoid workspace complexity
-# Use --filter to only install web app dependencies
-echo "📦 Installing dependencies for web app only..."
-pnpm install --filter @dashboarduz/web --no-frozen-lockfile
+# Now install and build the web app
+echo "📦 Installing dependencies for web app..."
+cd ../../apps/web
+npm install
 
 # Build the web app
 echo "🏗️  Building Next.js application..."
-cd apps/web
-pnpm build
+npm run build
 
 echo "✅ Build completed successfully!"
