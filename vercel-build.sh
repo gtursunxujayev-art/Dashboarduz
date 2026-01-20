@@ -4,12 +4,13 @@ set -e
 echo "🚀 Starting Vercel build..."
 
 # Vercel runs this from the project root
-# First, install dependencies in the web app directory
-echo "📦 Installing dependencies in apps/web..."
-cd apps/web
-npm install
+# Install dependencies using pnpm (handles workspace)
+echo "📦 Installing dependencies with pnpm..."
+pnpm install --frozen-lockfile
 
+# Build the web app
 echo "🏗️  Building Next.js application..."
-npm run build
+cd apps/web
+pnpm build
 
 echo "✅ Build completed successfully!"
