@@ -1,9 +1,10 @@
+
 {
-  "buildCommand": "node_modules/.bin/next build",
+  "buildCommand": "npm run vercel-build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm install",
   "regions": ["iad1"],
-  "outputDirectory": ".next",
+  "outputDirectory": "apps/web/.next",
   "env": {
     "NEXT_PUBLIC_API_URL": "",
     "NEXT_PUBLIC_SENTRY_DSN": ""
