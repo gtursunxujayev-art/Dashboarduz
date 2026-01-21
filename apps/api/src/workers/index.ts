@@ -1,4 +1,6 @@
+
 // Background worker services
+
 // These process jobs from Redis queues
 
 import { prisma } from '@dashboarduz/db';
@@ -177,22 +179,6 @@ async function processAmoCRMWebhook(event: any, tenantId: string) {
             },
           });
         }
-          update: {
-            name: contactData.name || null,
-            email: email || null,
-            externalIds: { amocrm_id: String(contactData.id) },
-            metadata: contactData,
-            updatedAt: new Date(),
-          },
-          create: {
-            tenantId,
-            name: contactData.name || null,
-            phone: phone || null,
-            email: email || null,
-            externalIds: { amocrm_id: String(contactData.id) },
-            metadata: contactData,
-          },
-        });
       }
     }
   }
@@ -314,12 +300,21 @@ export async function processNotification(notificationId: string) {
     });
 
     log(LogLevel.INFO, 'Notification sent successfully', { notificationId });
-  } catch (error: any) {
+    } catch (error: any) {
     log(LogLevel.ERROR, 'Notification processing failed', {
       notificationId,
       error: error.message,
       stack: error.stack,
     });
+
+    // Fetch notification again for error handling
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+
+    if (!notification) {
+      throw new Error(`Notification ${notificationId} not found during error handling`);
+    }
 
     // Update notification with error
     const updated = await prisma.notification.update({
